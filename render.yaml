@@ -1,0 +1,61 @@
+services:
+  # 1. Main API Web Service (Render Web Service)
+  - type: web
+    name: kaggriculture-api
+    runtime: node
+    plan: starter
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: KAGGLE_USERNAME
+        sync: false
+      - key: KAGGLE_API_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kaggriculture-db
+          property: connectionString
+
+  # 2. Autonomous Strategy Optimization Engine (Render Background Worker)
+  - type: worker
+    name: kaggriculture-optimizer-worker
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt || true
+    startCommand: python3 optimize.py
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: KAGGLE_USERNAME
+        sync: false
+      - key: KAGGLE_API_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kaggriculture-db
+          property: connectionString
+
+# Scheduled Cron Jobs on Render
+cronjobs:
+  - name: kaggle-replay-monitor
+    schedule: "0 */2 * * *"  # Every 2 hours
+    command: python3 analyze_replay.py
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: KAGGLE_USERNAME
+        sync: false
+      - key: KAGGLE_API_TOKEN
+        sync: false
+
+databases:
+  - name: kaggriculture-db
+    plan: starter
+    databaseName: kaggriculture
+    user: kaggriculture_user

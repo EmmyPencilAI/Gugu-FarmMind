@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #050608;
+  --surface: #0d1117;
+  --accent: #00d2ff;
+  --accent-glow: rgba(0, 210, 255, 0.3);
+  --success: #00ff9d;
+  --warning: #ffb800;
+  --danger: #ff4757;
+  --text-dim: #8b949e;
+  --border: rgba(255, 255, 255, 0.08);
+}
+
+body {
+  background-color: var(--bg);
+  color: #c9d1d9;
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  margin: 0;
+}
+
+.glass {
+  background: rgba(13, 17, 23, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+}
+
+.glass-card {
+  background: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glow-text {
+  text-shadow: 0 0 10px var(--accent-glow);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 12px rgba(0, 210, 255, 0.4);
+}
+
+.glow-success {
+  box-shadow: 0 0 12px rgba(0, 255, 157, 0.4);
+}
+
+.monospaced {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+.stat-card {
+  border-left: 2px solid var(--accent);
+}
+
+.pulse {
+  animation: pulse-anim 2s infinite;
+}
+
+@keyframes pulse-anim {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #050608;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f293d;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00d2ff;
+}
+

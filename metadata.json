@@ -1,0 +1,6 @@
+{
+  "name": "Gugu FarmMind Autonomous Engine",
+  "description": "Production-grade autonomous Gugu FarmMind competition platform with strategy optimizer, Monte Carlo simulator, Kaggle API integration, Gemini 3.6 strategic advisor, and performance dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,46 @@
+{
+  "timestamp": 1786562733.8189192,
+  "agent_strategy_id": "strat_champ_v1",
+  "results": {
+    "random": {
+      "seed": 42,
+      "opponent_type": "random",
+      "agent_final_cash": 2103.92,
+      "opp_final_cash": 796.64,
+      "win": true,
+      "cash_margin": 1307.28
+    },
+    "starter": {
+      "seed": 42,
+      "opponent_type": "starter",
+      "agent_final_cash": 2103.92,
+      "opp_final_cash": 1218.62,
+      "win": true,
+      "cash_margin": 885.3
+    },
+    "champion": {
+      "seed": 42,
+      "opponent_type": "champion",
+      "agent_final_cash": 2103.92,
+      "opp_final_cash": 3568.92,
+      "win": false,
+      "cash_margin": -1465.0
+    },
+    "aggressive": {
+      "seed": 42,
+      "opponent_type": "aggressive",
+      "agent_final_cash": 2103.92,
+      "opp_final_cash": 277.74,
+      "win": true,
+      "cash_margin": 1826.18
+    },
+    "economic": {
+      "seed": 42,
+      "opponent_type": "economic",
+      "agent_final_cash": 2103.92,
+      "opp_final_cash": 3568.92,
+      "win": false,
+      "cash_margin": -1465.0
+    }
+  }
+}
