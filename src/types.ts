@@ -23,9 +23,45 @@ export interface StrategyConfig {
   description: string;
 }
 
+export interface DailyQuotaInfo {
+  used_today: number;
+  max_daily: number;
+  remaining_today: number;
+  can_submit: boolean;
+  active_ladder_bots: Array<{
+    submission_id: string;
+    version: string;
+    score?: number;
+    estimated_rating?: number;
+    status: string;
+    is_active_ladder?: boolean;
+    submitted_at?: number;
+  }>;
+  all_recent_submissions?: any[];
+}
+
+export interface MistakeRecord {
+  mistake_id: string;
+  opponent_archetype: string;
+  turn_failed: number;
+  failure_category: string;
+  root_cause: string;
+  counter_action_taken: string;
+  loss_margin: number;
+  created_at: number;
+}
+
 export interface PlatformStatus {
   status: string;
   platform: string;
+  autonomous?: {
+    is_running: boolean;
+    started_at: number | null;
+    generations_completed: number;
+    last_log: string;
+    last_result?: any;
+  };
+  quota?: DailyQuotaInfo;
   champion: {
     id: string;
     version: string;
@@ -38,6 +74,11 @@ export interface PlatformStatus {
     competition: string;
     rank: number;
     rating: number;
+    rules?: {
+      max_daily_submissions: number;
+      active_tracked_submissions: number;
+      scoring_system: string;
+    };
     status: string;
   };
   gemini: {

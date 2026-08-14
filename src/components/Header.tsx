@@ -23,17 +23,19 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   return (
     <header id="app-header" className="glass rounded-xl px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 text-white border-b border-white/10 shrink-0 shadow-2xl">
-      <div id="brand-container" className="flex items-center space-x-3">
-        <div id="status-pulse-dot" className="w-3 h-3 bg-cyan-400 rounded-full pulse shadow-[0_0_10px_rgba(0,210,255,0.9)]"></div>
+      <div id="brand-container" className="flex items-center space-x-3.5">
+        <div id="status-pulse-dot" className="w-3.5 h-3.5 bg-cyan-400 rounded-full pulse shadow-[0_0_12px_rgba(0,210,255,0.9)] shrink-0"></div>
         <div>
-          <h1 id="app-title" className="text-base font-bold tracking-widest text-white uppercase flex items-center gap-2">
-            GUGU FARMMIND <span className="text-cyan-400 font-normal opacity-80">| AUTONOMOUS COMMAND</span>
-            <span id="badge-version" className="text-[10px] bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30 font-mono tracking-normal font-bold">
-              v1.0.0
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 id="app-title" className="text-lg font-extrabold tracking-wider text-white uppercase flex items-center gap-2">
+              <span className="text-cyan-400">GUGU</span> FARMMIND
+            </h1>
+            <span id="badge-version" className="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded border border-cyan-500/30 font-mono font-bold tracking-wider uppercase">
+              Autonomous AI Champion
             </span>
-          </h1>
-          <p id="app-subtitle" className="text-[11px] text-[#8b949e] font-mono">
-            Render Operational • Evolutionary Strategy Loop • Gemini 3.6 & Kaggle API
+          </div>
+          <p id="app-bio" className="text-[12px] text-slate-300 font-sans mt-0.5 max-w-xl leading-snug">
+            Autonomous decision-intelligence agent engineered for the Kaggle Kaggriculture championship. Powered by hierarchical 720-turn horizon planning, mistake-learning memory, and adaptive market liquidation.
           </p>
         </div>
       </div>
