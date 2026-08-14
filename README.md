@@ -1,321 +1,242 @@
-# Production-Grade Autonomous Kaggriculture Competition Platform
+# Gugu FarmMind
 
-An autonomous, continuously improving competitive AI system designed for the Kaggle Kaggriculture Competition.
+Gugu FarmMind is an autonomous economic strategy agent specifically engineered for the Kaggle Kaggriculture competition. The agent couples real-time portfolio optimization, dynamic price regime classification, opponent modeling, and endgame liquidation planning to maximize final bank balance over a 30-day season.
 
----
+## Overview
 
-## Quick Navigation & Overview
+Gugu FarmMind is built specifically for the turn-based Kaggriculture competition environment on Kaggle. In each match, two competing farms operate concurrently across a shared economic environment governed by the following dynamics:
 
-This system consists of:
-- **Self-contained Kaggle Submission Agent** (`main.py`): Zero network dependency during match execution.
-- **Python Kaggriculture Core Engine** (`/kaggriculture`): State, Portfolio Economics, Market Dynamics, Opponent Meta, MPC Planner, Grid Navigation, and Multi-Bot Monte Carlo Simulator.
-- **Autonomous Evolutionary Optimizer** (`optimizer.py`): Continuous hypothesis formation, strategy mutation, quality-gated benchmarking, and champion promotion.
-- **Kaggle API Subprocess Wrapper** (`kaggle_client.py`): Submits agent archives, monitors leaderboard, and downloads replay logs.
-- **Gemini Strategic Research Layer** (`gemini_advisor.py`): Strategic failure diagnostics, opponent profiling, and structured parameter recommendation.
-- **Render Backend & Worker** (`render.yaml`): Background optimization engine, REST API, scheduled replay monitoring cron jobs.
-- **Vercel / React Executive Dashboard**: Real-time performance metrics, strategy lineage, simulation suite, and market forecasts.
+- **Match Horizon**: 30-day season spanning 720 discrete turns (24 turns per day).
+- **Two Competing Farms**: Competitors make decisions simultaneously with publicly observable farm layouts.
+- **Dynamic Market**: Commodity prices fluctuate dynamically based on overall market supply and town demand.
+- **Agricultural Production**: Multiple crop varieties with distinct growth cycles, watering schedules, and fertilizer responses.
+- **Livestock Management**: Animal assets requiring daily feed expenses in exchange for recurring product yields.
+- **Infrastructure Expansion**: Strategic investment opportunities in additional land tiles, shed capacity, and hired farm hands.
+- **Winning Condition**: Final bank balance at the conclusion of turn 720 determines the match winner. Unsold inventory does not count toward the final score.
 
----
+## Core Strategy
 
-## 1. Local Installation
+The agent's decision engine is structured around five strategic pillars designed to maximize expected final cash ($EFC$):
 
-```bash
-# Clone the repository
-git clone <your-repo-url>
-cd kaggriculture-platform
+### Economic Optimization
 
-# Install Node.js dependencies
-npm install
+Every potential investment (crop seed, livestock, land tile, farm hand, fertilizer) is evaluated using a continuous return-on-investment (ROI) framework:
 
-# Verify Python 3 environment
-python3 --version
+$$\text{ROI}_{\text{daily}} = \frac{\mathbb{E}[\text{Revenue}] - \text{Total Cost}}{\text{Capital Invested} \times \text{Days to Maturity}}$$
+
+Decisions explicitly factor in:
+- Expected gross revenue and input resource costs
+- Time-to-production vs. days remaining in the season
+- Land footprint and shed capacity utilization
+- Labor and watering requirements
+- Capital liquidity constraints and cash safety buffers
+- Opportunity cost relative to alternative asset classes
+
+### Dynamic Market Intelligence
+
+The market engine tracks price histories, velocity ($\Delta P / \Delta t$), and demand regimes for each commodity, classifying market states into:
+- **SCARCITY**: Price $\ge 1.3\times$ baseline; priority trigger for inventory liquidation.
+- **NORMAL**: Balanced supply and demand; selective harvesting and standard sales.
+- **OVERSUPPLY / CRASH**: Price depressed or rapidly falling; withholding non-perishable inventory until recovery.
+- **RECOVERY**: Positive price momentum following a market trough; timed opportunistic selling.
+
+### Production Planning
+
+Production coordinates crops and livestock into an integrated portfolio:
+- **Fast-Cycle Crops (Wheat/Corn)**: Rapid capital turnover during early season liquidity generation.
+- **High-Yield Crops (Soy/Tomatoes/Berries)**: Mid-season margin expansion boosted by strategic fertilizer application.
+- **Livestock (Chickens/Cows/Sheep)**: Consistent daily cash-flow streams that cushion against crop price volatility.
+- **Labor & Infrastructure**: Farm hand hiring and land expansion executed only when projected marginal yield exceeds fixed and wage costs.
+
+### Opponent Awareness
+
+Because the opponent's farm state is publicly observable, Gugu FarmMind profiles opponent behavior into strategic archetypes (e.g., *Aggressive Expansion*, *Crop Specialist*, *Animal Specialist*, *Balanced*). The agent detects supply shocks before they materialize in market prices and diversifies into non-competing commodity sectors.
+
+### Endgame Optimization
+
+Because unsold inventory and unharvested crops hold zero value at match completion, Gugu FarmMind transitions into an aggressive liquidation policy during the final days (Days 24–30):
+- Halts planting of crops whose growth duration exceeds the remaining days in the season.
+- Ceases long-term capital expenditures (land purchases, livestock acquisitions).
+- Systematically liquidates all stored goods to convert all physical assets into liquid bank balance.
+
+## Decision Architecture
+
+At every turn, the agent processes the latest match observation through a sequential evaluation pipeline:
+
+```
+Observation
+    ↓
+State Extraction
+    ↓
+Economic Evaluation
+    ↓
+Market Analysis
+    ↓
+Opponent Analysis
+    ↓
+Strategic Planning
+    ↓
+Action Selection
+    ↓
+Environment
+    ↓
+New Observation
 ```
 
----
+The agent continuously recalculates its operational plan from the latest observed game state, ensuring adaptive responses to price movements and opponent actions.
 
-## 2. Kaggle Credentials Setup
+## Architecture
 
-Configure your Kaggle API credentials as environment variables or inside `.env`:
+The competition agent is completely self-contained within the execution environment:
 
-```bash
-export KAGGLE_USERNAME="your_kaggle_username"
-export KAGGLE_API_TOKEN="your_kaggle_api_key_or_token"
+```
+Kaggle Environment
+    ↓
+submission.py (or main.py)
+    ↓
+Gugu FarmMind Decision Engine
 ```
 
-Never commit credentials to version control.
+The competition submission has **zero runtime dependencies** on external networks, databases, cloud servers, or API calls during active gameplay. All state parsing, economic models, heuristic planning, and action formatting execute locally and deterministically within Kaggle's per-turn time limits.
 
----
+*(Note: Offline research tools, such as evolutionary parameter optimizers, historical replay analyzers, and local benchmarking suites, exist solely for development and do not run during live competition matches.)*
 
-## 3. Gemini Credentials Setup
+## Competition Runtime
 
-Configure your Google Gemini API Key:
-
-```bash
-export GEMINI_API_KEY="your_gemini_api_key"
-```
-
----
-
-## 4. Local Simulation Execution
-
-Run local matches against Random, Starter, Aggressive, Economic, and Champion bots:
-
-```bash
-python3 local_test.py
-```
-
-Produces `results.json`.
-
-Run multi-seed Monte Carlo benchmarks:
-
-```bash
-python3 benchmark.py 50
-```
-
----
-
-## 5. Strategy Optimization Loop
-
-Run an evolutionary strategy mutation and benchmarking cycle:
-
-```bash
-python3 optimize.py
-```
-
----
-
-## 6. Render Deployment Instructions
-
-The backend service and continuous optimization worker run on Render via `render.yaml`.
-
-1. Connect your GitHub repository to Render.
-2. Select **New Blueprint Instance**.
-3. Render will automatically provision:
-   - `kaggriculture-api` (Web Service)
-   - `kaggriculture-optimizer-worker` (Background Worker)
-   - `kaggriculture-db` (PostgreSQL Database)
-   - `kaggle-replay-monitor` (Cron Job)
-4. Set `GEMINI_API_KEY`, `KAGGLE_USERNAME`, and `KAGGLE_API_TOKEN` in Render Environment Variables.
-
----
-
-## 7. Vercel Dashboard Deployment
-
-Deploy the Next.js/React executive dashboard to Vercel:
-
-```bash
-npm run build
-vercel --prod
-```
-
-Configure `vercel.json` rewrite routes to point `/api/*` to your Render backend domain (`https://kaggriculture-api.onrender.com`).
-
----
-
-## 8. Kaggle Submission Pipeline
-
-Validate quality gates, test agent execution, and bundle `main.py` into `submission.tar.gz`:
-
-```bash
-python3 package_submission.py
-```
-
-Submit directly via Kaggle API:
-
-```bash
-kaggle competitions submit -c kaggriculture-2026 -f submission.tar.gz -m "Champion Candidate Submission"
-```
-
----
-
-## 9. Submission & Leaderboard Monitoring
-
-Monitor ongoing ratings and leaderboard standings:
-
-```bash
-python3 -c "from kaggle_client import KaggleClient; k=KaggleClient(); print(k.get_competition_status())"
-```
-
----
-
-## 10. Replay & Failure Analysis
-
-Download recent episode replays and run Gemini strategic failure analysis:
-
-```bash
-python3 analyze_replay.py
-```
-
----
-
-## 11. Champion Promotion Protocol
-
-A strategy variant is automatically promoted to **CHAMPION** if and only if it passes the quality gate threshold:
-- Win rate improvement $\ge +2.0\%$ over current Champion in Monte Carlo simulations.
-- OR Avg Cash improvement $\ge +\$100.00$ with non-negative win rate delta.
-
-To manually promote a candidate in Python:
+Kaggle's evaluation engine directly invokes the top-level handler:
 
 ```python
-from db import save_strategy, get_all_strategies
-# Set status = 'CHAMPION' for the target strategy_id
+def agent(obs):
+    """
+    Kaggriculture agent entry point.
+    Receives competition observation dictionary, returns action dictionary.
+    """
+    return planner.plan_turn(obs)
 ```
 
----
+The agent processes the observation dictionary and returns a validated action payload (e.g., `{"action": "PLANT", "crop": "WHEAT"}`, `{"action": "SELL", "item": "TOMATOES", "quantity": 5}`, `{"action": "BUY_LAND"}`, `{"action": "PASS"}`).
 
-## 12. Rollback Procedure
+## Strategy Components
 
-If a newly promoted champion degrades on the Kaggle live leaderboard:
+The table below outlines the core implemented modules:
 
-1. Query prior champions from the database.
-2. Re-assign `status = 'CHAMPION'` to the previous stable champion ID.
-3. Run `python3 package_submission.py` to regenerate `submission.tar.gz`.
-4. Re-submit `submission.tar.gz` to Kaggle.
-
----
-
-## PROJECT STRUCTURE
-
-```
-/
-├── kaggriculture/           # Core Python Game & Strategy Engine
-│   ├── __init__.py
-│   ├── state.py             # 10x10 Grid State & Transitions
-│   ├── economy.py           # Portfolio Model & Expected Final Cash (EFC)
-│   ├── market.py            # Price Velocity, Acceleration & Regime Classifier
-│   ├── crops.py             # Crop Growth Cycles & Profitability
-│   ├── animals.py           # Livestock Daily Feeds & Outputs
-│   ├── opponent.py          # Opponent Profiler & Counter Tactics
-│   ├── navigation.py        # Grid Distance & Worker Pathfinding
-│   ├── strategy.py          # Strategy Hyperparameters & Versioning
-│   ├── planner.py           # Rolling-Horizon Model Predictive Control (MPC)
-│   └── simulation.py        # Multi-Bot Monte Carlo Simulator
-├── main.py                  # Self-contained Kaggle Submission File (def agent(obs))
-├── optimizer.py             # Autonomous Strategy Evolutionary Loop
-├── kaggle_client.py         # Subprocess Kaggle CLI/API Wrapper
-├── gemini_advisor.py        # Strategic Research & Optimization Layer (Gemini API)
-├── db.py                    # Database Persistence Layer
-├── local_test.py            # Local Agent Verification Script
-├── benchmark.py             # Monte Carlo Benchmark CLI Tool
-├── analyze_replay.py        # Gemini Replay Diagnostic CLI Tool
-├── package_submission.py    # Packaging & Quality Gate Script
-├── server.ts                # Full-Stack Express Server
-├── render.yaml              # Render Deployment Blueprint
-├── vercel.json              # Vercel Deployment Config
-├── schema.sql               # PostgreSQL Schema
-├── src/                     # React Executive Dashboard
-│   ├── App.tsx
-│   ├── types.ts
-│   └── components/
-│       ├── Header.tsx
-│       ├── ChampionCard.tsx
-│       ├── StrategyTable.tsx
-│       ├── SimulationCenter.tsx
-│       ├── MarketIntelligence.tsx
-│       ├── OpponentMeta.tsx
-│       └── GeminiAdvisorPanel.tsx
-└── submission.tar.gz        # Generated Submission Package
-```
-
----
-
-## DEPLOYMENT ARCHITECTURE
-
-```
-                                 ┌─────────────────────────┐
-                                 │     Vercel Dashboard    │
-                                 │   (React SPA Analytics) │
-                                 └────────────┬────────────┘
-                                              │ REST API
-                                              ▼
- ┌─────────────────────────────────────────────────────────────────────────┐
- │                            RENDER BACKEND                               │
- │  ┌──────────────────────┐   ┌─────────────────────┐  ┌───────────────┐ │
- │  │ kaggriculture-api    │   │ kaggriculture-      │  │ PostgreSQL    │ │
- │  │ (Express + Node)     │   │ optimizer-worker    │  │ Database      │ │
- │  └──────────┬───────────┘   └──────────┬──────────┘  └───────────────┘ │
- └─────────────┼──────────────────────────┼────────────────────────────────┘
-               │                          │
-               ▼                          ▼
-     ┌──────────────────┐       ┌──────────────────┐
-     │   Kaggle API     │       │    Gemini API    │
-     │ (Submissions/    │       │ (Replays/        │
-     │  Leaderboard)    │       │  Hypotheses)     │
-     └──────────────────┘       └──────────────────┘
-```
-
----
-
-## ENVIRONMENT VARIABLES
-
-| Variable | Description |
+| Component | Purpose |
 |---|---|
-| `GEMINI_API_KEY` | Required for Gemini Strategic Advisor & Replay Analysis |
-| `KAGGLE_USERNAME` | Kaggle API Username |
-| `KAGGLE_API_TOKEN` | Kaggle API Token / Key |
-| `DATABASE_URL` | PostgreSQL Connection String |
-| `PORT` | Web Server Port (Defaults to 3000) |
+| **State Management** | Tracks player cash, inventory, planted crops, livestock, land tiles, and game clock |
+| **Planner** | Coordinates hierarchical decision levels and generates final per-turn actions |
+| **Economy Engine** | Evaluates expected ROI, capital allocation budgets, and cash reserve buffers |
+| **Market Engine** | Analyzes commodity price velocity, trend direction, and market supply regimes |
+| **Crop Manager** | Schedules planting, growth tracking, watering, and fertilizer application |
+| **Animal Manager** | Manages livestock acquisition, daily feed allocation, and yield harvesting |
+| **Navigation** | Resolves farm-hand movement, spatial targeting, and grid pathfinding |
+| **Opponent Model** | Classifies opponent farm composition to anticipate supply competition |
+| **Strategy Engine** | Houses versioned policy parameters and hierarchical execution rules |
 
----
+## Why Gugu FarmMind
 
-## LOCAL COMMANDS SUMMARY
+In Kaggriculture, high production volume is not the goal—capital efficiency is.
+
+The objective is to convert:
+
+$$\text{LAND} + \text{TIME} + \text{LABOR} + \text{CAPITAL} + \text{MARKET OPPORTUNITY}$$
+
+into the highest possible final bank balance.
+
+> *"Production is only valuable when it improves the probability of winning."*
+
+## Competition Constraints
+
+Gugu FarmMind explicitly models and respects all competition constraints:
+- **720 Total Turns**: Strict 30-day season limit (24 turns per day).
+- **Land & Shed Bounds**: Fixed initial capacity requiring capital investment to expand.
+- **Dynamic Pricing**: Nonlinear price degradation when markets become saturated.
+- **Crop Care Requirements**: Watering cycles and maturity windows before harvest.
+- **Livestock Maintenance**: Daily feeding expenses required to sustain product yields.
+- **Labor Overhead**: Upfront hiring costs and recurring daily wages for farm hands.
+- **Cash-Only Scoring**: Strictly cash-based ranking at turn 720.
+
+## Development & Testing
+
+The agent is validated locally across deterministic test suites and multi-seed Monte Carlo benchmarks against standard baseline archetypes:
+- **Random Baseline**: Validates basic economic efficiency and error resilience.
+- **Starter Baseline**: Benchmarks fundamental crop rotation and sales timing.
+- **Aggressive & Specialist Baselines**: Evaluates counter-strategies against rapid expansion and single-crop market flooding.
+- **Previous Champion Iterations**: Ensures that candidate policy mutations demonstrate positive win-rate delta prior to submission.
+
+## Submission
+
+To submit the agent to the Kaggle competition using the Kaggle CLI:
 
 ```bash
-python3 local_test.py          # Run local match test suite (outputs results.json)
-python3 benchmark.py 50        # Run 50-game Monte Carlo benchmark
-python3 optimize.py            # Run evolutionary strategy optimization cycle
-python3 analyze_replay.py      # Run Gemini replay analysis on recent episodes
-python3 package_submission.py  # Verify quality gate and build submission.tar.gz
+# Direct single-file submission
+kaggle competitions submit -c kaggriculture -f submission.py -m "Gugu FarmMind"
+
+# Root entry point submission
+kaggle competitions submit -c kaggriculture -f main.py -m "Gugu FarmMind"
+
+# Package archive submission (if using multi-file bundle)
+kaggle competitions submit -c kaggriculture -f submission.tar.gz -m "Gugu FarmMind"
 ```
 
----
+## Local Testing
 
-## RENDER CONFIGURATION
-
-- Service Type: Node Web Service (`kaggriculture-api`) + Python Background Worker (`kaggriculture-optimizer-worker`)
-- Build Command: `npm run build`
-- Start Command: `npm start`
-- Cron Job: `kaggle-replay-monitor` (Every 2 hours)
-
----
-
-## VERCEL CONFIGURATION
-
-- Build Command: `npm run build`
-- Output Directory: `dist`
-- API Rewrite: `/api/*` $\rightarrow$ Render backend URL
-
----
-
-## KAGGLE SUBMISSION COMMAND
+To run the local validation suite and Monte Carlo benchmark:
 
 ```bash
-kaggle competitions submit -c kaggriculture-2026 -f submission.tar.gz -m "Autonomous Champion v1.0"
+# Validate agent imports and turn execution
+python validate_agent.py
+
+# Run Monte Carlo benchmark against local baselines
+python benchmark.py
 ```
 
----
+## Configuration
 
-## TEST RESULTS SUMMARY
+The competition agent runs with deterministic default parameters embedded in the code. Optional environment variables for the offline development toolchain include:
 
-- **Local Test Suite**: Passed (4/5 wins vs Random, Starter, Aggressive, Crop bots).
-- **Monte Carlo Benchmark**: 74.2% Win Rate across 50 simulated multi-bot matches.
-- **Average Final Cash**: $2,840.50
-- **Submission Archive**: `submission.tar.gz` verified and self-contained (1.88 KB).
+```bash
+# Kaggle API Credentials (for CLI submissions and leaderboard sync)
+KAGGLE_USERNAME="your_username"
+KAGGLE_API_TOKEN="your_token"
 
----
+# Offline Replay Analysis (optional development layer)
+GEMINI_API_KEY="your_api_key"
+```
 
-## CURRENT BEST STRATEGY
+*Note: The live competition agent does not require or use any API keys or network access during match execution.*
 
-- **Strategy ID**: `strat_champ_v1`
-- **Name**: Balanced Portfolio Champion v1
-- **Status**: `CHAMPION`
-- **Cash Reserve Safety Buffer**: $120.00
-- **Crop / Animal Split**: 60% Crops / 40% Animals
-- **Endgame Liquidation Trigger**: Day 24
+## Design Principles
 
----
+- **Autonomous Decision-Making**: Independent heuristic decision logic with zero runtime human intervention.
+- **Economic Reasoning**: ROI-driven resource allocation prioritizing high-margin capital turnover.
+- **Long-Horizon Planning**: Rolling multi-day investment planning bounded by the 30-day season.
+- **Market Awareness**: Supply-demand regime tracking to avoid selling into depressed markets.
+- **Opponent Awareness**: Behavioral classification to counter opponent production concentrations.
+- **Adaptive Strategy**: Dynamic adjustments based on current cash velocity and market shifts.
+- **Endgame Awareness**: Strict asset liquidation rules ahead of match termination.
+- **Deterministic and Reliable Execution**: Robust exception catching and fallback policies to ensure zero crashed turns.
+- **Competition-First Optimization**: Focused strictly on final balance maximization.
 
-## KNOWN LIMITATIONS
+## Limitations
 
-1. **Market Price Variance**: Extreme multi-opponent market collapses in rare 4-way crop flooding matches can delay livestock ROI by up to 2 days.
-2. **Kaggle API Rate Limits**: Automated submission frequency should be capped at 5 per day to respect Kaggle submission quotas.
+- **Opponent Strategy Variance**: Extreme or unpredictable multi-agent behaviors can affect commodity price trajectories.
+- **Market Price Volatility**: High-velocity price crashes from simultaneous opponent market dumps introduce unavoidable market risk.
+- **Local Simulation Divergence**: Local benchmarks against baseline bots provide directional signal but cannot replicate the full live Kaggle leaderboard distribution.
+- **Empirical Dependency**: Policy parameters require continuous empirical evaluation against emerging meta strategies.
+
+## Future Development
+
+- **Enhanced Opponent Modeling**: Bayesian belief updating over opponent cash reserves and unobserved inventory.
+- **Nonlinear Price Forecasting**: Multi-step autoregressive price estimators trained on competition replay datasets.
+- **Broader Strategy Search**: Covariance matrix adaptation evolution strategy (CMA-ES) for parameter optimization.
+- **Fine-Grained Spatial Planning**: Coordinated multi-worker pathfinding optimization on expanded grid layouts.
+- **Expanded Benchmark Sets**: Automated adversarial self-play frameworks to discover novel meta-strategies.
+
+## License
+
+This project is licensed under the MIT License. See `LICENSE` for details.
+
+## Author
+
+**Gugu Robotics**  
+Agent: *Gugu FarmMind*
